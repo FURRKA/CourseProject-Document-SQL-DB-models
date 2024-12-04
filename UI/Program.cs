@@ -1,4 +1,4 @@
-﻿namespace CourseProject_Document_SQL_DB_models
+﻿namespace UI
 {
     internal class Program
     {
