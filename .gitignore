@@ -366,3 +366,4 @@ FodyWeavers.xsd
 /TestUI/TestUI.csproj
 /TestUI/Program.cs
 /TestUI/Test.cs
+/TestUI/App.config
