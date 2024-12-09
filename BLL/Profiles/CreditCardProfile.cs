@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BLL.DTO;
 using DAL.Entities;
 
 namespace BLL.Profiles
@@ -7,7 +8,7 @@ namespace BLL.Profiles
     {
         public CreditCardProfile()
         {
-            CreateMap<CreditsCard, CreditCardProfile>().ReverseMap();
+            CreateMap<CreditsCard, CreditCardDTO>().ReverseMap();
         }
     }
 }

@@ -7,9 +7,9 @@ namespace DAL.Repositories
     {
         private readonly IMongoCollection<T> _collection;
 
-        public MongoRepository(IMongoDatabase database, IConnectionString connection)
+        public MongoRepository(IMongoDatabase database, string collectionName)
         {
-            _collection = database.GetCollection<T>(connection.ConnectionString);
+            _collection = database.GetCollection<T>(collectionName);
         }
 
         public void Create(T entity)

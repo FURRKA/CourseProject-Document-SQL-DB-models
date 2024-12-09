@@ -10,20 +10,20 @@ namespace DAL
     {
         public static void ConfigureDAL(this IServiceCollection service, string connection, bool isDocument = false)
         {
-            var connectionObject = new ConnectionClass(connection);
-            service.AddTransient<IConnectionString>(_ => connectionObject);
+            service.AddTransient<IConnectionString>(_ => new ConnectionClass(connection));
 
             if (isDocument)
             {
                 var mongoClient = new MongoClient(connection);
-                IMongoDatabase database = mongoClient.GetDatabase("TrainTickets");
+                var database = mongoClient.GetDatabase("TrainTickets");
 
-                service.AddTransient<IRepository<ClientsEntity>>(_ => new MongoRepository<ClientsEntity>(database, connectionObject));
-                service.AddTransient<IRepository<TicketEntity>>(_ => new MongoRepository<TicketEntity>(database, connectionObject));
-                service.AddTransient<IRepository<CreditsCard>>(_ => new MongoRepository<CreditsCard>(database, connectionObject));
-                service.AddTransient<IRepository<Distances>>(_ => new MongoRepository<Distances>(database, connectionObject));
-                service.AddTransient<IRepository<StationsEntity>>(_ => new MongoRepository<StationsEntity>(database, connectionObject));
-                service.AddTransient<IRepository<RouteEntity>>(_ => new MongoRepository<RouteEntity>(database, connectionObject));
+                service.AddTransient<IRepository<ClientsEntity>>(_ => new MongoRepository<ClientsEntity>(database, "Clients"));
+                service.AddTransient<IRepository<TicketEntity>>(_ => new MongoRepository<TicketEntity>(database, "Tickets"));
+                service.AddTransient<IRepository<CreditsCard>>(_ => new MongoRepository<CreditsCard>(database, "CreditCards"));
+                service.AddTransient<IRepository<Distances>>(_ => new MongoRepository<Distances>(database, "Distances"));
+                service.AddTransient<IRepository<StationsEntity>>(_ => new MongoRepository<StationsEntity>(database, "Stations"));
+                service.AddTransient<IRepository<RouteEntity>>(_ => new MongoRepository<RouteEntity>(database, "Routes"));
+                service.AddTransient<IRepository<OrderEntity>>(_ => new MongoRepository<OrderEntity>(database, "Orders"));
             }
             else
             {
