@@ -2,7 +2,6 @@
 using DAL.Interfaces;
 using DAL.Repositories;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
 
 namespace DAL
 {
