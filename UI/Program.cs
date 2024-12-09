@@ -1,4 +1,6 @@
-﻿namespace UI
+﻿using DAL.Repositories;
+
+namespace UI
 {
     internal class Program
     {

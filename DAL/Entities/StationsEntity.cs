@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DAL.Interfaces;
+﻿using DAL.Interfaces;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace DAL.Entities
 {
     public class StationsEntity : IEntity
     {
+        [BsonId]
         public int Id { get; set; }
         public string StationName { get; set; }
     }

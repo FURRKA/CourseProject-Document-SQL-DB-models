@@ -1,9 +1,11 @@
 ﻿using DAL.Interfaces;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace DAL.Entities
 {
     public class TicketEntity : IEntity
     {
+        [BsonId]
         public int Id { get; set; }
         public int CarNumber { get; set; }
         public int SeatNumber { get; set; }

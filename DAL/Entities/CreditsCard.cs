@@ -1,9 +1,14 @@
-﻿namespace DAL.Entities
+﻿using DAL.Interfaces;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace DAL.Entities
 {
-    public class CreditsCard
+    public class CreditsCard : IEntity
     {
-        public int CardNumber { get; set; }
-        public int CSV { get; set; }
+        [BsonId]
+        public int Id { get; set; }
+        public string CardNumber { get; set; }
+        public int CVC { get; set; }
         public double Value { get; set; }
     }
 }
