@@ -2,6 +2,7 @@
 using DAL.Interfaces;
 using DAL.Repositories;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
 
 namespace DAL
 {
@@ -9,13 +10,20 @@ namespace DAL
     {
         public static void ConfigureDAL(this IServiceCollection service, string connection, bool isDocument = false)
         {
-            service.AddTransient<IConnectionString>(_ => new ConnectionClass(connection));
+            var connectionObject = new ConnectionClass(connection);
+            service.AddTransient<IConnectionString>(_ => connectionObject);
 
             if (isDocument)
             {
-                //var mongoClient = new MongoClient(connection);
-                //service.AddTransient<IRepository<ClientsEntity>, MongoRepository<ClientsEntity>>();
-                //service.AddTransient<IMongoDatabase>(_ => mongoClient.GetDatabase("CourceWork"));
+                var mongoClient = new MongoClient(connection);
+                IMongoDatabase database = mongoClient.GetDatabase("TrainTickets");
+
+                service.AddTransient<IRepository<ClientsEntity>>(_ => new MongoRepository<ClientsEntity>(database, connectionObject));
+                service.AddTransient<IRepository<TicketEntity>>(_ => new MongoRepository<TicketEntity>(database, connectionObject));
+                service.AddTransient<IRepository<CreditsCard>>(_ => new MongoRepository<CreditsCard>(database, connectionObject));
+                service.AddTransient<IRepository<Distances>>(_ => new MongoRepository<Distances>(database, connectionObject));
+                service.AddTransient<IRepository<StationsEntity>>(_ => new MongoRepository<StationsEntity>(database, connectionObject));
+                service.AddTransient<IRepository<RouteEntity>>(_ => new MongoRepository<RouteEntity>(database, connectionObject));
             }
             else
             {

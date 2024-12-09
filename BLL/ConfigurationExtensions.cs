@@ -25,6 +25,14 @@ namespace BLL
             );
 
             service.AddTransient<IService<ClientDTO>, ClientService>();
+            service.AddTransient<IService<CreditCardDTO>, CreditCardService>();
+            service.AddTransient<IService<DistancesDTO>, DistanceService>();
+            service.AddTransient<IService<OrderDTO>, OrderService>();
+            service.AddTransient<IService<RouteDTO>, RouteService>();
+            service.AddTransient<IService<StationDTO>, StationService>();
+            service.AddTransient<IService<StationRoutesDTO>, StationRoutsService>();
+            service.AddTransient<IService<TicketDTO>, TicketService>();
+            service.AddTransient<IService<TicketOrdersDTO>, TicketOrdersService>();
         }
     }
 }
