@@ -33,6 +33,8 @@ namespace BLL
             service.AddTransient<IService<StationRoutesDTO>, StationRoutsService>();
             service.AddTransient<IService<TicketDTO>, TicketService>();
             service.AddTransient<IService<TicketOrdersDTO>, TicketOrdersService>();
+
+            service.AddTransient<IAutorizationService, AuthorizationService>();
         }
     }
 }
