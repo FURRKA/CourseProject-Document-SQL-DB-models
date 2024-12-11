@@ -12,6 +12,8 @@ namespace BLL.DTO
         public int SeatNumber { get; set; }
         public StationDTO DepartingStation { get; set; }
         public StationDTO ArrivingStation { get; set; }
+
+        [BsonDateTimeOptions(DateOnly =true)]
         public DateTime Date { get; set; }
         public RouteDTO Route { get; set; }
         public ClientDTO Client { get; set; }

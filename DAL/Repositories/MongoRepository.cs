@@ -16,7 +16,7 @@ namespace DAL.Repositories
         {
             if (entity == null) throw new ArgumentNullException(nameof(entity));
 
-            entity.Id = _collection.Find(_ => true).ToList().Count > 0 ? _collection.Find(_ => true).ToList().Max(x => x.Id) + 1 : 0;
+            entity.Id = GetMaxNewId();
             _collection.InsertOne(entity);
         }
 
@@ -46,6 +46,11 @@ namespace DAL.Repositories
         {
             if (entity == null) throw new ArgumentNullException(nameof(entity));
             _collection.DeleteOne(e => e.Id == entity.Id);
+        }
+
+        public int GetMaxNewId()
+        {
+            return _collection.Find(_ => true).ToList().Count > 0 ? _collection.Find(_ => true).ToList().Max(x => x.Id) + 1 : 0;
         }
     }
 }

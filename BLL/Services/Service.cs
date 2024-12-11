@@ -51,5 +51,7 @@ namespace BLL.Services
             var obj = _mapper.Map<TEntity>(item);
             _repository.Delete(obj);
         }
+
+        public int GetMaxNewId() => _repository.GetMaxNewId();
     }
 }

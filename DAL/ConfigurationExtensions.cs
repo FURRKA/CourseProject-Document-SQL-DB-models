@@ -24,6 +24,7 @@ namespace DAL
                 service.AddTransient<IRepository<StationsEntity>>(_ => new MongoRepository<StationsEntity>(database, "Stations"));
                 service.AddTransient<IRepository<RouteEntity>>(_ => new MongoRepository<RouteEntity>(database, "Routes"));
                 service.AddTransient<IRepository<OrderEntity>>(_ => new MongoRepository<OrderEntity>(database, "Orders"));
+                service.AddTransient<IFindByCardNumber>(_ => new MongoCardRepository(database, "CreditCards"));
             }
             else
             {

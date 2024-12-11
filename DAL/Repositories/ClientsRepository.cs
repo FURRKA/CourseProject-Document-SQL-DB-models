@@ -130,5 +130,9 @@ namespace DAL.Repositories
                 }
             }
         }
+        public int GetMaxNewId()
+        {
+            return GetAll().Max(c => c.Id) + 1;
+        }
     }
 }

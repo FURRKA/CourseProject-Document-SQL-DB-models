@@ -11,6 +11,8 @@ namespace DAL.Entities
         public int SeatNumber { get; set; }
         public StationsEntity DepartingStation { get; set; }
         public StationsEntity ArrivingStation { get; set; }
+
+        [BsonDateTimeOptions(DateOnly = true)]
         public DateTime Date { get; set; }
         public RouteEntity Route { get; set; }
         public ClientsEntity Client { get; set; }

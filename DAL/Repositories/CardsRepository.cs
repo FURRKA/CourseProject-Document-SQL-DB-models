@@ -101,5 +101,9 @@ namespace DAL.Repositories
 
             command.ExecuteNonQuery();
         }
+        public int GetMaxNewId()
+        {
+            return GetAll().Max(c => c.Id) + 1;
+        }
     }
 }

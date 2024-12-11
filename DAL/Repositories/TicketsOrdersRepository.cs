@@ -30,7 +30,7 @@ namespace DAL.Repositories
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
 
-            var command = new NpgsqlCommand(@"DELETE FROM TicketOrders WHERE ticketid = @TicketId AND orderid = @OrderId", connection);
+            var command = new NpgsqlCommand(@"DELETE FROM TicketsOrders WHERE ticketid = @TicketId AND orderid = @OrderId", connection);
 
             command.Parameters.AddWithValue("@TicketId", entity.TicketId);
             command.Parameters.AddWithValue("@OrderId", entity.OrderId);
@@ -45,7 +45,7 @@ namespace DAL.Repositories
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
 
-            var command = new NpgsqlCommand("SELECT ticketid, orderid FROM TicketOrders", connection);
+            var command = new NpgsqlCommand("SELECT ticketid, orderid FROM TicketsOrders", connection);
             using var reader = command.ExecuteReader();
 
             while (reader.Read())
@@ -76,7 +76,7 @@ namespace DAL.Repositories
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
 
-            var command = new NpgsqlCommand(@"UPDATE TicketOrders
+            var command = new NpgsqlCommand(@"UPDATE TicketsOrders
                                            SET orderid = @OrderId
                                            WHERE ticketid = @TicketId", connection);
 
@@ -84,6 +84,10 @@ namespace DAL.Repositories
             command.Parameters.AddWithValue("@OrderId", entity.OrderId);
 
             command.ExecuteNonQuery();
+        }
+        public int GetMaxNewId()
+        {
+            return GetAll().Max(c => c.Id) + 1;
         }
     }
 }

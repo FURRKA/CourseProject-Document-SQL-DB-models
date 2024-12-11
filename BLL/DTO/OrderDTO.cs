@@ -13,5 +13,10 @@ namespace BLL.DTO
         public bool Status { get; set; } = false;
         public double Cost { get; set; }
         public DateTime Date { get; set; }
+
+        public void CalculateCost()
+        {
+            Cost = Tickets.Sum(t => t.Route.GetLenth(t.DepartingStation.Id, t.ArrivingStation.Id)) * 0.5;
+        }
     }
 }

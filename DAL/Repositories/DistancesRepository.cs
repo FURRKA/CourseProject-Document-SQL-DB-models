@@ -99,5 +99,9 @@ namespace DAL.Repositories
             if (command.ExecuteNonQuery() == 0)
                 throw new InvalidOperationException($"Distance with Id {entity.Id} not found.");
         }
+        public int GetMaxNewId()
+        {
+            return GetAll().Max(c => c.Id) + 1;
+        }
     }
 }

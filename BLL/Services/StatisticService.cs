@@ -3,16 +3,16 @@ using BLL.Interfaces;
 
 namespace BLL.Services
 {
-    internal class StatistickService : IStatisticService
+    internal class StatisticService : IStatisticService
     {
         private readonly IService<OrderDTO> _orderService;
-        public StatistickService(IService<OrderDTO> orderServices)
+        public StatisticService(IService<OrderDTO> orderServices)
         {
             _orderService = orderServices;
         }
         public void ShowPaymentStatistic()
         {
-            
+            throw new NotImplementedException();            
         }
 
         public void ShowRouteStatistic()

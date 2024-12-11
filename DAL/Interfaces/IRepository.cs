@@ -8,5 +8,6 @@
         List<T> GetByCriteria(Predicate<T> predicate);
         void Update(T entity);
         void Delete(T entity);
+        int GetMaxNewId();
     }
 }

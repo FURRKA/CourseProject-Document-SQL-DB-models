@@ -35,6 +35,9 @@ namespace BLL
             service.AddTransient<IService<TicketOrdersDTO>, TicketOrdersService>();
 
             service.AddTransient<IAutorizationService, AuthorizationService>();
+            service.AddTransient<IBankingService, BankingService>();
+            service.AddTransient<IOrderService, ProcessedOrderService>();
+            service.AddTransient<IStatisticService, StatisticService>();
         }
     }
 }

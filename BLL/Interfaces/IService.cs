@@ -1,6 +1,4 @@
-﻿using DAL.Interfaces;
-
-namespace BLL.Interfaces
+﻿namespace BLL.Interfaces
 {
     public interface IService<T> where T : class, IDTO
     {
@@ -10,5 +8,6 @@ namespace BLL.Interfaces
         List<T> GetByCriteria(Predicate<T> predicate);
         void Update(T item);
         void Delete(T item);
+        int GetMaxNewId();
     }
 }

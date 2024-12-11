@@ -81,5 +81,9 @@ namespace DAL.Repositories
         {
             throw new NotImplementedException();
         }
+        public int GetMaxNewId()
+        {
+            return GetAll().Max(c => c.Id) + 1;
+        }
     }
 }

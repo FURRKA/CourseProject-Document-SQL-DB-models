@@ -1,6 +1,4 @@
-﻿using BLL.Interfaces;
-
-namespace BLL.Services
+﻿namespace BLL.Services
 {
     public static class TableService
     {
@@ -40,6 +38,7 @@ namespace BLL.Services
             }
 
             DrawHorizontalLine(columnWidths);
+            Console.WriteLine();
         }
 
         private static void DrawHorizontalLine(List<int> columnWidths)
