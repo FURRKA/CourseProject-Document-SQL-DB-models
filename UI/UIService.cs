@@ -124,7 +124,19 @@ namespace UI
                         break;
                     case "9":
                         if (client.Role == "Analitic")
-                            break;
+                        {
+                            Console.WriteLine("Введите начальную дату");
+                            DateTime.TryParse(Console.ReadLine(), out DateTime date1);
+                            Console.WriteLine("Введите конечную дату");
+                            DateTime.TryParse(Console.ReadLine(), out DateTime date2);
+
+                            if (date1 != null && date2 != null)
+                            {
+                                _statisticService.ShowRouteStatistic(date1, date2);
+                            }
+                            else
+                                Console.WriteLine("Одна из дат является не корректной");
+                        }
                         break;
                     default:
                         break;

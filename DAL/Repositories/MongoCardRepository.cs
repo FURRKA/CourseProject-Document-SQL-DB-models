@@ -14,5 +14,10 @@ namespace DAL.Repositories
         {
             return GetAll().Find(c => number.Contains(c.CardNumber));
         }
+
+        public CreditsCard FindByNumberCVC(string number, int cvc)
+        {
+            return GetAll().Find(c => number.Contains(c.CardNumber) && c.CVC == cvc);
+        }
     }
 }

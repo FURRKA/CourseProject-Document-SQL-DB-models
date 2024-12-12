@@ -47,6 +47,11 @@ namespace DAL.Repositories
             return GetAll().Find(card => card.CardNumber.ToLower().Contains(number.ToLower()));
         }
 
+        public CreditsCard FindByNumberCVC(string number, int cvc)
+        {
+            return GetAll().Find(card => card.CardNumber.ToLower().Contains(number.ToLower()) && card.CVC == cvc);
+        }
+
         public List<CreditsCard> GetAll()
         {
             var cards = new List<CreditsCard>();
@@ -104,6 +109,6 @@ namespace DAL.Repositories
         public int GetMaxNewId()
         {
             return GetAll().Count() > 0 ? GetAll().Max(x => x.Id) + 1 : 0;
-        }
+        }        
     }
 }

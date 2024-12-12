@@ -30,9 +30,11 @@ namespace BLL.Services
 
         public bool CheckBankAccount(string number) => _findCardService.FindByNumber(number) != null;
 
+        public bool CheckBankAccount(string number, int cvc) => _findCardService.FindByNumberCVC(number, cvc) != null;
+
         public bool RemoveTransaction(string number, int cvc, double value)
         {
-            if (CheckBankAccount(number))
+            if (CheckBankAccount(number, cvc))
             {
                 var card = _findCardService.FindByNumber(number);
                 if (card.CardNumber == number && card.CVC == cvc)
@@ -44,5 +46,7 @@ namespace BLL.Services
 
             return false;
         }
+
+        
     }
 }
