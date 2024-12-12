@@ -10,8 +10,11 @@ namespace BLL.Services
         { 
             _clientService = service;
         }
-        public ClientDTO? Autorization(string login, string password) =>
-            _clientService.GetByCriteria(c => c.Login == login && c.Password == password)[0];
+        public ClientDTO? Autorization(string login, string password)
+        {
+            var data = _clientService.GetByCriteria(c => c.Login == login && c.Password == password);
+            return data.Count > 0? data[0] : null;
+        }
 
         public bool DeleteAccount()
         {

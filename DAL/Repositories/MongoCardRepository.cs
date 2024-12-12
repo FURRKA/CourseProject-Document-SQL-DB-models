@@ -12,7 +12,7 @@ namespace DAL.Repositories
 
         public CreditsCard FindByNumber(string number)
         {
-            return GetAll().Find(c => c.CardNumber == number);
+            return GetAll().Find(c => number.Contains(c.CardNumber));
         }
     }
 }

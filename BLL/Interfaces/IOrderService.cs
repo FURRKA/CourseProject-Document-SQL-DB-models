@@ -7,6 +7,9 @@ namespace BLL.Interfaces
         public void CreateOrder(ClientDTO client);
         public void DeleteOrder(ClientDTO client);
         public void PrintRoutes();
+        public void PrintStations();
+        public void PayOrders(ClientDTO client);
+        public void PrintActiveOrders(ClientDTO client);
         public void PrintStationsInRoute(int idRoute);
     }
 }

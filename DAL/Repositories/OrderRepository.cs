@@ -12,7 +12,7 @@ namespace DAL.Repositories
         private readonly IRepository<CreditsCard> cardsRepository;
 
         //Убрать в конфиг
-        private readonly double COSTKM = 0.5;
+        private readonly double COSTKM = 0.05;
         public OrderRepository(
             IRepository<TicketEntity> ticketRepository,
             IRepository<TicketOrdersEntity> ticketOrdersRepository,
@@ -84,7 +84,9 @@ namespace DAL.Repositories
             while (reader.Read())
             {
                 int orderId = reader.GetInt32(0);
-                var ticketsIds = ticketOrdersRepository.GetByCriteria(t => t.OrderId == orderId).Select(t => t.TicketId);
+                bool status = reader.GetBoolean(3);
+                DateTime date = reader.GetDateTime(4);
+                var ticketsIds = ticketOrdersRepository.GetByCriteria(t => t.OrderId == orderId).Select(t => t.TicketId).ToList();
                 var tickets = ticketRepository.GetByCriteria(t => ticketsIds.Contains(t.Id));
                 var card = cardsRepository.GetById(reader.GetInt32(1));
                 double cost = tickets.Sum(t => t.Route.GetLenth(t.DepartingStation.Id, t.ArrivingStation.Id) * COSTKM);
@@ -94,7 +96,9 @@ namespace DAL.Repositories
                     Id = orderId,
                     Tickets = tickets,
                     CreditsCard = card,
-                    Cost = cost
+                    Cost = cost,
+                    Status = status,
+                    Date = date
                 });
             }
 
@@ -132,7 +136,7 @@ namespace DAL.Repositories
         }
         public int GetMaxNewId()
         {
-            return GetAll().Max(c => c.Id) + 1;
+            return GetAll().Count() > 0 ? GetAll().Max(x => x.Id) + 1 : 0;
         }
     }
 }

@@ -1,7 +1,6 @@
-﻿using AutoMapper;
-using BLL.DTO;
+﻿using BLL.DTO;
 using BLL.Interfaces;
-using MongoDB.Bson.IO;
+using MongoDB.Driver;
 
 namespace BLL.Services
 {
@@ -21,6 +20,25 @@ namespace BLL.Services
             _ticketService = ticketService;
             _bankingService = bankingService;
         }
+
+        public void PrintActiveOrders(ClientDTO client)
+        {
+            Console.Clear();
+            var activeOrders = _orderService.GetByCriteria(o => o.Tickets.Any(t => t.Client.Id == client.Id) &&
+                   o.Date >= DateTime.Now.Date.Add(TimeSpan.FromDays(-1)) &&
+                   o.Date <= DateTime.Now.Date.Add(TimeSpan.FromDays(10)));
+
+            if (activeOrders.Count() > 0)
+            {
+                Console.WriteLine("Активные заказы:");
+                PrintOrders(activeOrders);
+                Console.WriteLine("Активные билеты:");
+                activeOrders.ForEach(o => PrintTickets(o.Tickets));
+            }
+            else
+                Console.WriteLine("У вас нету активных заказов");
+
+        }
         public void CreateOrder(ClientDTO client)
         {
             var tickets = new List<TicketDTO>();
@@ -30,7 +48,9 @@ namespace BLL.Services
             {
                 Console.Clear();
                 Console.WriteLine("Регистрация билета");
-                tickets.Add(CreateTicket(client, tickets));
+                var ticket = CreateTicket(client, tickets);
+                ticket.Id = tickets.Count == 0 ? _orderService.GetMaxNewId() : tickets.Max(t => t.Id) + 1;
+                tickets.Add(ticket);
                 PrintTickets(tickets);
                 Console.WriteLine("Хотите добавить ещё один билет в заказ? Y/N");
                 key = Console.ReadKey().Key;
@@ -54,29 +74,157 @@ namespace BLL.Services
             _orderService.Create(order);
             Console.WriteLine($"Суммарная стоимость заказа {order.Cost}");
 
-
+            Console.WriteLine("Нажмите на любую клавишу...");
             Console.ReadKey();
-            //string cardNumber;
-            //int cvc;
-            //do
-            //{
-            //    Console.WriteLine("Введите данные карты");
-            //    cardNumber = Console.ReadLine();
-            //    if (!_bankingService.CheckBankAccount(cardNumber))
-            //    {
-            //        Console.WriteLine("Карты с таким счётом номером нет в банковской системе. Попробуйте снова");
-            //        continue;
-            //    }
-            //    Console.WriteLine("Введите cvc код");
-
-            //} while (true);
-
-
         }
 
         public void DeleteOrder(ClientDTO client)
         {
-            throw new NotImplementedException();
+            Console.Clear();
+            var activeOrders = _orderService.GetByCriteria(o => o.Tickets.Any(t => t.Client.Id == client.Id) && 
+                   o.Date >= DateTime.Now.Date.Add(TimeSpan.FromDays(-1)) && 
+                   o.Date <= DateTime.Now.Date.Add(TimeSpan.FromDays(10)));
+
+            if (activeOrders.Count() > 0 )
+            {
+                Console.WriteLine("Активные заказы:");
+                PrintOrders(activeOrders);
+                Console.WriteLine("Активные билеты:");
+                activeOrders.ForEach(o => PrintTickets(o.Tickets));
+
+                Console.WriteLine("Вы хотите отменить билет или заказ?\n1 Заказ\n2 Билет");
+                Console.Write("Ваш выбор: ");
+                string choice = Console.ReadLine();
+                var paidOrder = activeOrders.Where(o => o.Status == true).ToList();
+                int id;
+                switch (choice)
+                {
+                    case "1":
+                        Console.Clear();
+                        if (paidOrder.Count > 0)
+                        {
+                            PrintOrders(paidOrder);
+                            Console.WriteLine("Введите id заказа который хотите отменить");
+                            if (Int32.TryParse(Console.ReadLine(), out id) && paidOrder.Any(o => o.Id == id))
+                            {
+                                var order = paidOrder.Find(o => o.Id == id);
+                                if (order != null)
+                                {
+                                    if (_bankingService.AddTransaction(order.CreditsCard.CardNumber, order.CreditsCard.CVC, order.Cost))
+                                    {
+                                        order.Tickets.ForEach(_ticketService.Delete);
+                                        _orderService.Delete(order);
+                                        Console.WriteLine("Заказ успешно отменён");
+                                    }
+                                }
+                            }
+                            Console.ReadKey();
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("У вас нету оплаченых заказов");
+                            Console.ReadKey();
+                        }
+                        break;
+                    case "2":
+                        Console.Clear();
+                        if (paidOrder.Count > 0)
+                        {
+                            paidOrder.ForEach(o => PrintTickets(o.Tickets));
+                            Console.WriteLine("Введите id билета который хотите отменить");
+                            if (Int32.TryParse(Console.ReadLine(), out id) && paidOrder.Any(o => o.Tickets.Select(t => t.Id).ToList().Contains(id)))
+                            {
+                                var order = paidOrder.Find(o => o.Tickets.Any(t => t.Id == id));
+                                if (CancelTicket(order.Tickets, id, order.Id))
+                                {
+                                    Console.WriteLine("Билет отменён");
+                                    Console.ReadKey();
+                                }
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("Введённый id не входит в данный список");
+                                Console.ReadKey();
+                            }
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("У вас нету оплаченых заказов с билетами");
+                            Console.ReadKey();
+                        }
+                        break;
+                    default:
+                        Console.WriteLine("Такого пункта нет в меню. Возвращение на главную страницу...");
+                        break;
+                }
+            }
+            else
+                Console.WriteLine("У вас нету активных заказов");
+
+        }
+
+        public void PayOrders(ClientDTO client)
+        {
+            var unpaidOrders = _orderService.GetByCriteria(o => o.Tickets.Any(t => t.Client.Id == client.Id) &&
+                   o.Status == false &&
+                   o.Date >= DateTime.Now.Date.Add(TimeSpan.FromDays(-1)) &&
+                   o.Date <= DateTime.Now.Date.Add(TimeSpan.FromDays(10)));
+
+            if (unpaidOrders.Count() > 0)
+            {
+                Console.WriteLine("Неоплаченные заказы:");
+                PrintOrders(unpaidOrders);
+
+                double finalCost = unpaidOrders.Sum(o => o.Cost);
+                Console.WriteLine($"К оплате {finalCost}");
+                do
+                {
+                    Console.Write("\nВведите номер карты: ");
+                    string number = Console.ReadLine();
+                    if (!_bankingService.CheckBankAccount(number))
+                    {
+                        Console.WriteLine("Карты с таким номером нету в системе банка");
+                        Console.ReadKey();
+                        continue;
+                    }
+
+                    Console.Write("\nВведите cvc карты: ");
+                    if (!Int32.TryParse(Console.ReadLine(), out int cvc))
+                    {
+                        Console.WriteLine("Вы что-то ввели не так");
+                        Console.ReadKey();
+                        continue;
+                    }
+
+                    if (_bankingService.RemoveTransaction(number, cvc, finalCost))
+                    {
+                        foreach (var item in unpaidOrders)
+                        {
+                            item.Status = true;
+                            item.CreditsCard = new CreditCardDTO { CardNumber = number, CVC = cvc };
+                            _orderService.Update(item);
+                        }
+
+                        Console.BackgroundColor = ConsoleColor.Green;
+                        Console.WriteLine("Оплата успешно завершена!");
+                    }
+                    else
+                    {
+                        Console.BackgroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Оплата не прошла");
+                    }
+
+                    Console.ResetColor();
+                    break;
+
+                } while (true);
+            }
+            else
+                Console.WriteLine("Неоплаченных заказов нет");
+
         }
 
         private TicketDTO CreateTicket(ClientDTO client, List<TicketDTO> lists)
@@ -222,7 +370,7 @@ namespace BLL.Services
             s => s.StationName);
         }
 
-        private void PrintStations()
+        public void PrintStations()
         {
             Console.WriteLine($"Список станций\n");
             TableService.Show(_stationService.GetAll(), new string[] { "Название" },
@@ -243,7 +391,8 @@ namespace BLL.Services
 
         private void PrintTickets(List<TicketDTO> tickets)
         {
-            TableService.Show(tickets, new string[] { "Маршрут №", "Название марш.", "Вагон", "Место", "Станция отпр.", "Станция приб.", "Дата" },
+            TableService.Show(tickets, new string[] {"Id", "Маршрут №", "Название марш.", "Вагон", "Место", "Станция отпр.", "Станция приб.", "Дата" },
+                    t => t.Id,
                     t => t.Route.Id,
                     t => t.Route.RouteName,
                     t => t.CarNumber,
@@ -252,6 +401,46 @@ namespace BLL.Services
                     t => t.ArrivingStation.StationName,
                     t => t.Date);
         } 
+
+        private void PrintOrders(List<OrderDTO> orders)
+        {
+            TableService.Show(orders, new string[] {"Id", "Дата", "Статус", "Стоимость" },
+                p => p.Id,
+                p => p.Date,
+                p => p.Status ? "Оплачено" : "Неоплачено",
+                p => p.Cost
+            );
+        }
+
+        private bool CancelTicket(List<TicketDTO> tickets, int idTicket, int idOrder)
+        {
+            var ticket = tickets.Find(t => t.Id == idTicket);
+            var order = _orderService.GetById(idOrder);
+            if (order != null && ticket != null)
+            {
+                double cost = ticket.Route.GetLenth(ticket.DepartingStation.Id, ticket.ArrivingStation.Id) * 0.05;
+                order.Tickets.Remove(ticket);
+                order.Cost -= cost;
+                _ticketService.Delete(ticket);
+                _orderService.Update(order);
+                if (_bankingService.AddTransaction(order.CreditsCard.CardNumber, order.CreditsCard.CVC, cost))
+                {
+                    Console.BackgroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Транзакция отмены билета прошла успешно");
+                    Console.ResetColor();
+                    return true;
+                }
+                else
+                {
+                    Console.BackgroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Транзакция отмены не прошла");
+                    Console.ResetColor();
+                    return false;
+                }
+            }
+            else
+                return false;
+        }
 
         private void Draw(List<int> occupiedSeats, int totalSeats)
         {
@@ -295,5 +484,7 @@ namespace BLL.Services
             
             Console.WriteLine($"+{new string('-', seatsPerRow * 5)}+");
         }
+
+        
     }
 }

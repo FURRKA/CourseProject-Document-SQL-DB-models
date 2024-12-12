@@ -1,5 +1,6 @@
 ﻿using DAL.Interfaces;
 using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DAL.Entities
 {
@@ -11,6 +12,8 @@ namespace DAL.Entities
         public CreditsCard CreditsCard { get; set; }
         public bool Status { get; set; } = false;
         public double Cost { get; set; }
+        [BsonDateTimeOptions(DateOnly = true)]
         public DateTime Date { get; set; }
+
     }
 }
