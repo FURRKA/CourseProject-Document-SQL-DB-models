@@ -48,7 +48,9 @@ namespace BLL.Services
             {
                 Console.Clear();
                 Console.WriteLine("Регистрация билета");
-                var ticket = CreateTicket(client, tickets);
+                TicketDTO ticket = CreateTicket(client, tickets);
+                if (ticket == null)
+                    return;
                 ticket.Id = tickets.Count == 0 ? _orderService.GetMaxNewId() : tickets.Max(t => t.Id) + 1;
                 tickets.Add(ticket);
                 PrintTickets(tickets);
@@ -179,7 +181,7 @@ namespace BLL.Services
                 PrintOrders(unpaidOrders);
 
                 double finalCost = unpaidOrders.Sum(o => o.Cost);
-                Console.WriteLine($"К оплате {finalCost}");
+                Console.WriteLine($"К оплате {finalCost:f2}");
                 do
                 {
                     Console.Write("\nВведите номер карты: ");
@@ -209,11 +211,13 @@ namespace BLL.Services
                         }
 
                         Console.BackgroundColor = ConsoleColor.Green;
+                        Console.ForegroundColor = ConsoleColor.Black;
                         Console.WriteLine("Оплата успешно завершена!");
                     }
                     else
                     {
                         Console.BackgroundColor = ConsoleColor.Red;
+                        Console.ForegroundColor = ConsoleColor.Black;
                         Console.WriteLine("Оплата не прошла");
                     }
 
@@ -264,7 +268,7 @@ namespace BLL.Services
             
 
             //Выбор даты
-            TableService.Show(GetDates(), new string[] {"Доступные даты" }, d => d.Date);
+            TableService.Show(GetDates(), new string[] {"Доступные даты" }, d => d.Date.ToShortDateString());
             do
             {
                 Console.Write("Выберите дату отправления: ");
@@ -278,6 +282,12 @@ namespace BLL.Services
 
             //Выбор подходящего маршрута
             var routes = _routeService.GetByCriteria(r => r.Stations.Any(s => s.Id == departingStation.Id) && r.Stations.Any(s => s.Id == arrivingStation.Id));
+            if (routes.Count == 0)
+            {
+                Console.WriteLine("Для данных станций нету маршрута");
+                Console.ReadKey();
+                return null;
+            }
             var rids = routes.Select(r => r.Id).ToList();
             Console.WriteLine("Маршруты подходящие под ваши критерии:");
             TableService.Show(routes,
@@ -399,16 +409,16 @@ namespace BLL.Services
                     t => t.SeatNumber,
                     t => t.DepartingStation.StationName,
                     t => t.ArrivingStation.StationName,
-                    t => t.Date);
+                    t => t.Date.ToShortDateString());
         } 
 
         private void PrintOrders(List<OrderDTO> orders)
         {
-            TableService.Show(orders, new string[] {"Id", "Дата", "Статус", "Стоимость" },
+            TableService.Show(orders, new string[] { "Id", "Дата", "Статус", "Стоимость" },
                 p => p.Id,
-                p => p.Date,
+                p => p.Date.ToShortDateString(),
                 p => p.Status ? "Оплачено" : "Неоплачено",
-                p => p.Cost
+                p => Math.Round(p.Cost, 2)
             );
         }
 

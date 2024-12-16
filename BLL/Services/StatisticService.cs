@@ -33,13 +33,13 @@ namespace BLL.Services
                     dict.Add(key, value);
             });
 
-            Console.WriteLine($"Статистика доходов за период с {date1.Date} по {date2.Date}");
+            Console.WriteLine($"Статистика доходов за период с {date1.Date.ToShortDateString()} по {date2.Date.ToShortDateString()}");
             TableService.Show(
                 dict.Select(d => new { month = d.Key.Item1, year = d.Key.Item2, value = d.Value }).ToList(),
                 new string[] { "Месяц", "Год", "Прибыль" },
                 d => d.month,
                 d => d.year,
-                d => d.value
+                d => Math.Round(d.value, 2)
                 );
 
             Console.ReadKey();
@@ -66,7 +66,7 @@ namespace BLL.Services
                 });
             });
 
-            Console.WriteLine($"Статистика доходов за период с {date1.Date} по {date2.Date}");
+            Console.WriteLine($"Статистика доходов за период с {date1.Date.ToShortDateString()} по {date2.Date.ToShortDateString()}");
             TableService.Show(
                 dict.Select(d => new { month = d.Key.Item1, year = d.Key.Item2, route = d.Key.Item3, value = d.Value }).ToList(),
                 new string[] { "Месяц", "Год", "Маршрут", "Количество" },

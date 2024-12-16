@@ -28,7 +28,7 @@ namespace UI
                         break;
                     default:
                         Console.WriteLine("Такого пункта нет. Попробуйте ещё раз");
-                        break;
+                        continue;
                 }
 
                 var provider = service.BuildServiceProvider();
